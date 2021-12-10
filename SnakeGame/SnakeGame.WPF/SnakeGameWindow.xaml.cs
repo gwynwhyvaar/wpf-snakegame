@@ -6,6 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 namespace SnakeGame.WPF
 {
     /// <summary>
@@ -13,8 +14,11 @@ namespace SnakeGame.WPF
     /// </summary>
     public partial class SnakeGameWindow : Window
     {
+        private DispatcherTimer _gameTickTimer = new DispatcherTimer();
         const int SnakeSquareSize = 20;
-
+        const int SnakeStartLength = 3;
+        const int SnakeStartSpeed = 400;
+        const int SnakeSpeedThreshold = 100;
         private SolidColorBrush _snakeBodyBrush = Brushes.Red;
         private SolidColorBrush _snakeHeadBrush = Brushes.Gray;
         private List<SnakePart> _snakeParts = new List<SnakePart>();
@@ -23,8 +27,14 @@ namespace SnakeGame.WPF
         public SnakeGameWindow()
         {
             InitializeComponent();
+            this._gameTickTimer.Tick += _gameTickTimer_Tick;
         }
-        private void Window_ContentRendered(object sender, EventArgs e) => DrawGameArea();
+        private void _gameTickTimer_Tick(object sender, EventArgs e) => this.MoveSnake();
+        private void Window_ContentRendered(object sender, EventArgs e)
+        {
+            this.DrawGameArea();
+            this.StartNewGame();
+        }
         private void DrawGameArea()
         {
             bool doneDrawingBackground = false;
@@ -117,6 +127,18 @@ namespace SnakeGame.WPF
             });
             this.DrawSnake();
             // collision check function
+        }
+        private void StartNewGame()
+        {
+            this._snakeLength = SnakeStartLength;
+            this._snakeDirection = SnakeDirectionEnum.Right;
+            this._snakeParts.Add(new SnakePart()
+            {
+                Position = new Point(SnakeSquareSize * 5, 5)
+            });
+            this._gameTickTimer.Interval = TimeSpan.FromMilliseconds(SnakeStartSpeed);
+            this.DrawSnake();
+            this._gameTickTimer.IsEnabled = true;
         }
     }
 }
