@@ -173,5 +173,43 @@ namespace SnakeGame.WPF
             Canvas.SetTop(this._snakeFood, foodPosition.Y);
             Canvas.SetLeft(this._snakeFood, foodPosition.X);
         }
+        private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            var  originalSnakeDirection = this._snakeDirection;
+            switch(e.Key)
+            {
+                case System.Windows.Input.Key.Up:
+                    if(this._snakeDirection!= SnakeDirectionEnum.Down)
+                    {
+                        this._snakeDirection = SnakeDirectionEnum.Up;
+                    }
+                    break;
+                case System.Windows.Input.Key.Down:
+                    if (this._snakeDirection != SnakeDirectionEnum.Up)
+                    {
+                        this._snakeDirection = SnakeDirectionEnum.Down;
+                    }
+                    break;
+                case System.Windows.Input.Key.Right:
+                    if (this._snakeDirection != SnakeDirectionEnum.Left)
+                    {
+                        this._snakeDirection = SnakeDirectionEnum.Right;
+                    }
+                    break;
+                case System.Windows.Input.Key.Left:
+                    if (this._snakeDirection != SnakeDirectionEnum.Right)
+                    {
+                        this._snakeDirection = SnakeDirectionEnum.Left;
+                    }
+                    break;
+                case System.Windows.Input.Key.Space:
+                    this.StartNewGame();
+                    break;
+            }
+            if(this._snakeDirection!= originalSnakeDirection)
+            {
+                this.MoveSnake();
+            }
+        }
     }
 }
