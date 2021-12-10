@@ -28,7 +28,7 @@ namespace SnakeGame.WPF
             {
                 var rect = new Rectangle
                 {
-                    Fill = nextIsOdd ? Brushes.White : Brushes.Black,
+                    Fill = nextIsOdd ? Brushes.CornflowerBlue : Brushes.Green,
                     Width = SnakeSquareSize,
                     Height = SnakeSquareSize
                 };
