@@ -1,9 +1,11 @@
-﻿using System;
+﻿using SnakeGame.WPF.Entities;
+using SnakeGame.WPF.Enums;
+using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-
 namespace SnakeGame.WPF
 {
     /// <summary>
@@ -12,6 +14,12 @@ namespace SnakeGame.WPF
     public partial class SnakeGameWindow : Window
     {
         const int SnakeSquareSize = 20;
+
+        private SolidColorBrush _snakeBodyBrush = Brushes.Red;
+        private SolidColorBrush _snakeHeadBrush = Brushes.Gray;
+        private List<SnakePart> _snakeParts = new List<SnakePart>();
+        private SnakeDirectionEnum _snakeDirection = SnakeDirectionEnum.Right;
+        private int _snakeLength = 0;
         public SnakeGameWindow()
         {
             InitializeComponent();
@@ -50,6 +58,65 @@ namespace SnakeGame.WPF
                     doneDrawingBackground = true;
                 }
             }
+        }
+        /// <summary>
+        /// draws the snake
+        /// </summary>
+        private void DrawSnake()
+        {
+            foreach(var snakepart in _snakeParts)
+            {
+                if(snakepart.UIElement is null)
+                {
+                    snakepart.UIElement = new Rectangle()
+                    {
+                        Width = SnakeSquareSize,
+                        Height = SnakeSquareSize,
+                        Fill = (snakepart.Ishead ? this._snakeHeadBrush : this._snakeBodyBrush)
+                    };
+                    GameArea.Children.Add(snakepart.UIElement);
+                    Canvas.SetTop(snakepart.UIElement, snakepart.Position.Y);
+                    Canvas.SetLeft(snakepart.UIElement, snakepart.Position.X);
+                }
+            }
+        }
+        private void MoveSnake()
+        {
+            while(this._snakeParts.Count >= this._snakeLength)
+            {
+                GameArea.Children.Remove(this._snakeParts[0].UIElement);
+                this._snakeParts.RemoveAt(0);
+            }
+            foreach(var snakePart in this._snakeParts)
+            {
+                (snakePart.UIElement as Rectangle).Fill = this._snakeBodyBrush;
+                snakePart.Ishead = false;
+            }
+            SnakePart snakeHead = this._snakeParts[this._snakeParts.Count - 1];
+            double nextX = snakeHead.Position.X;
+            double nextY = snakeHead.Position.Y;
+            switch (this._snakeDirection)
+            {
+                case SnakeDirectionEnum.Left:
+                    nextX -= SnakeSquareSize;
+                    break;
+                case SnakeDirectionEnum.Right:
+                    nextX += SnakeSquareSize;
+                    break;
+                case SnakeDirectionEnum.Up:
+                    nextY -= SnakeSquareSize;
+                    break;
+                case SnakeDirectionEnum.Down:
+                    nextY += SnakeSquareSize;
+                    break;
+            }
+            this._snakeParts.Add(new SnakePart()
+            {
+                Position = new Point(nextX, nextY),
+                Ishead = true
+            });
+            this.DrawSnake();
+            // collision check function
         }
     }
 }
