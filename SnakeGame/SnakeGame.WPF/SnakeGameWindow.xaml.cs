@@ -20,7 +20,7 @@ namespace SnakeGame.WPF
         const int SnakeStartSpeed = 400;
         const int SnakeSpeedThreshold = 100;
         private SolidColorBrush _snakeBodyBrush = Brushes.Red;
-        private SolidColorBrush _snakeHeadBrush = Brushes.Gray;
+        private SolidColorBrush _snakeHeadBrush = Brushes.Violet;
         private List<SnakePart> _snakeParts = new List<SnakePart>();
         private SnakeDirectionEnum _snakeDirection = SnakeDirectionEnum.Right;
         private int _snakeLength = 0;
