@@ -272,7 +272,17 @@ namespace SnakeGame.WPF
         }
         private void UpdateGameStatus()
         {
-            this.Title = $"SnakeWPF - Score: {this._currentScore} - Game Speed: {this._gameTickTimer.Interval.TotalMilliseconds}";
+            this.txtBoxStatusScore.Text = this._currentScore.ToString();
+            this.txtBoxStatusSpeed.Text = this._gameTickTimer.Interval.TotalMilliseconds.ToString();
+        }
+        private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            this.DragMove();
+        }
+        private void btnClose_Click(object sender, RoutedEventArgs e)
+        {
+            // clos the app
+            this.Close();
         }
     }
 }

@@ -5,8 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SnakeGame.WPF"
         mc:Ignorable="d"
-        Title="Snake WPF - Score: 0" SizeToContent="WidthAndHeight" ContentRendered="Window_ContentRendered" KeyUp="Window_KeyUp">
-    <Border BorderThickness="5" BorderBrush="Black">
-        <Canvas Name="GameArea" ClipToBounds="True" Width="400" Height="400"></Canvas>
-    </Border>
+        Title="Snake WPF - Score: 0" SizeToContent="WidthAndHeight" ContentRendered="Window_ContentRendered" KeyUp="Window_KeyUp" ResizeMode="NoResize" WindowStyle="None" Background="Black" MouseDown="Window_MouseDown">
+    <DockPanel Background="Black">
+        <Grid DockPanel.Dock="Top" Name="pnlToolBar">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FontFamily" Value="Consolas"></Setter>
+                    <Setter Property="Foreground" Value="White"></Setter>
+                    <Setter Property="FontSize" Value="24"></Setter>
+                    <Setter Property="FontWeight" Value="Bold"></Setter>
+                </Style>
+            </Grid.Resources>
+            <WrapPanel Margin="10,0,0,0">
+                <TextBlock>Score:</TextBlock>
+                <TextBlock Name="txtBoxStatusScore">0</TextBlock>
+            </WrapPanel>
+            <WrapPanel Grid.Column="1">
+                <TextBlock>Speed:</TextBlock>
+                <TextBlock Name="txtBoxStatusSpeed">0</TextBlock>
+            </WrapPanel>
+            <Button Grid.Column="2" DockPanel.Dock="Right" Background="Transparent" Foreground="White" FontWeight="Bold" FontSize="20" BorderThickness="0" Name="btnClose" Click="btnClose_Click" Padding="10,0">X</Button>
+        </Grid>
+        <Border BorderThickness="5" BorderBrush="Black">
+            <Canvas Name="GameArea" ClipToBounds="True" Width="400" Height="400"></Canvas>
+        </Border>
+    </DockPanel>
 </Window>
