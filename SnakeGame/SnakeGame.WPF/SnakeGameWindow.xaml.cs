@@ -2,6 +2,7 @@
 using SnakeGame.WPF.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -18,6 +19,7 @@ namespace SnakeGame.WPF
         const int SnakeStartLength = 3;
         const int SnakeStartSpeed = 400;
         const int SnakeSpeedThreshold = 100;
+        private int _currentScore = 0;
         private UIElement _snakeFood = null;
         private SolidColorBrush _foodBrush = Brushes.Yellow;
         private DispatcherTimer _gameTickTimer = new DispatcherTimer();
@@ -130,18 +132,37 @@ namespace SnakeGame.WPF
             });
             this.DrawSnake();
             // collision check function
+            this.DoCollisionCheck();
         }
         private void StartNewGame()
         {
+            foreach (var snakeBodyPart in this._snakeParts)
+            {
+                if (snakeBodyPart.UIElement != null)
+                {
+                    GameArea.Children.Remove(snakeBodyPart.UIElement);
+                }
+            }
+            this._snakeParts.Clear();
+            if (this._snakeFood != null)
+            {
+                GameArea.Children.Remove(this._snakeFood);
+            }
+            // reset
+            this._currentScore = 0;
             this._snakeLength = SnakeStartLength;
             this._snakeDirection = SnakeDirectionEnum.Right;
             this._snakeParts.Add(new SnakePart()
             {
-                Position = new Point(SnakeSquareSize * 5, 5)
+                Position = new Point(SnakeSquareSize * 5, SnakeSquareSize * 5)
             });
             this._gameTickTimer.Interval = TimeSpan.FromMilliseconds(SnakeStartSpeed);
+            // draw
             this.DrawSnake();
             this.DrawSnakeFood();
+            // update status
+            this.UpdateGameStatus();
+            // enable timer
             this._gameTickTimer.IsEnabled = true;
         }
         private Point GetNextFoodPosition()
@@ -175,11 +196,11 @@ namespace SnakeGame.WPF
         }
         private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            var  originalSnakeDirection = this._snakeDirection;
-            switch(e.Key)
+            var originalSnakeDirection = this._snakeDirection;
+            switch (e.Key)
             {
                 case System.Windows.Input.Key.Up:
-                    if(this._snakeDirection!= SnakeDirectionEnum.Down)
+                    if (this._snakeDirection != SnakeDirectionEnum.Down)
                     {
                         this._snakeDirection = SnakeDirectionEnum.Up;
                     }
@@ -206,10 +227,52 @@ namespace SnakeGame.WPF
                     this.StartNewGame();
                     break;
             }
-            if(this._snakeDirection!= originalSnakeDirection)
+            if (this._snakeDirection != originalSnakeDirection)
             {
                 this.MoveSnake();
             }
+        }
+        private void DoCollisionCheck()
+        {
+            var snakeHead = this._snakeParts[this._snakeParts.Count - 1];
+            if ((snakeHead.Position.X == Canvas.GetLeft(this._snakeFood)) && snakeHead.Position.Y == Canvas.GetTop(this._snakeFood))
+            {
+                EatSnakeFood();
+                return;
+            }
+            if ((snakeHead.Position.Y < 0) || (snakeHead.Position.Y >= GameArea.ActualHeight) || (snakeHead.Position.X < 0) || (snakeHead.Position.X >= GameArea.ActualWidth))
+            {
+                // todo: endgame()
+                EndGame();
+                return;
+            }
+            foreach (var snakeBodyPart in this._snakeParts.Take(this._snakeParts.Count - 1))
+            {
+                if ((snakeHead.Position.X == snakeBodyPart.Position.X) && (snakeHead.Position.Y == snakeBodyPart.Position.Y))
+                {
+                    // todo: endgame();
+                    EndGame();
+                }
+            }
+        }
+        private void EndGame()
+        {
+            this._gameTickTimer.IsEnabled = false;
+            MessageBox.Show($"Ooops, you died!\n\nTo start a new game, just press the space bar ...", "SnakeWPF");
+        }
+        private void EatSnakeFood()
+        {
+            this._snakeLength++;
+            this._currentScore++;
+            int timerInterval = Math.Max(SnakeSpeedThreshold, (int)this._gameTickTimer.Interval.TotalMilliseconds - (this._currentScore * 2));
+            this._gameTickTimer.Interval = TimeSpan.FromMilliseconds(timerInterval);
+            GameArea.Children.Remove(this._snakeFood);
+            DrawSnakeFood();
+            UpdateGameStatus();
+        }
+        private void UpdateGameStatus()
+        {
+            this.Title = $"SnakeWPF - Score: {this._currentScore} - Game Speed: {this._gameTickTimer.Interval.TotalMilliseconds}";
         }
     }
 }
