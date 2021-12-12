@@ -285,10 +285,41 @@ namespace SnakeGame.WPF
                 this.borderEndOfGame.Visibility = Visibility.Visible;
             }
             this._gameTickTimer.IsEnabled = false;
+            SpeakEndOfGameInfo(isNewHighScore);
+        }
+        private void SpeakEndOfGameInfo(bool isNewHighScore)
+        {
+            var promptBuilder = new PromptBuilder();
+            promptBuilder.StartStyle(new PromptStyle()
+            {
+                Emphasis = PromptEmphasis.Reduced,
+                Rate = PromptRate.Slow,
+                Volume = PromptVolume.ExtraLoud
+            });
+            promptBuilder.AppendText("Oh No");
+            promptBuilder.AppendBreak(TimeSpan.FromMilliseconds(200));
+            promptBuilder.AppendText("You died");
+            promptBuilder.EndStyle();
+
+            if (isNewHighScore)
+            {
+                promptBuilder.AppendBreak(TimeSpan.FromMilliseconds(500));
+                promptBuilder.StartStyle(new PromptStyle()
+                {
+                    Emphasis = PromptEmphasis.Moderate,
+                    Rate = PromptRate.Medium,
+                    Volume = PromptVolume.Medium
+                });
+                promptBuilder.AppendText("New High Score");
+                promptBuilder.AppendBreak(TimeSpan.FromMilliseconds(200));
+                promptBuilder.AppendTextWithHint(this._currentScore.ToString(), SayAs.NumberCardinal);
+                promptBuilder.EndStyle();
+            }
+            this._speechSynthesizer.SpeakAsync(promptBuilder);
         }
         private void EatSnakeFood()
         {
-            this._speechSynthesizer.Speak("yummy");
+            this._speechSynthesizer.SpeakAsync("yummy");
             this._snakeLength++;
             this._currentScore++;
             int timerInterval = Math.Max(SnakeSpeedThreshold, (int)this._gameTickTimer.Interval.TotalMilliseconds - (this._currentScore * 2));
@@ -326,19 +357,19 @@ namespace SnakeGame.WPF
                 {
                     newIndex = this.HighScoreList.IndexOf(justAbove) + 1;
                 }
-                this.HighScoreList.Insert(newIndex, new SnakeHighScore()
-                {
-                    PlayerName = this.textBoxPlayerName.Text,
-                    Score = this._currentScore
-                });
-                while (this.HighScoreList.Count > MaxHighscoreListEntryCount)
-                {
-                    this.HighScoreList.RemoveAt(MaxHighscoreListEntryCount);
-                }
-                this.SaveHighScoreList();
-                this.borderNewHighscore.Visibility = Visibility.Collapsed;
-                this.borderHighscoreList.Visibility = Visibility.Visible;
             }
+            this.HighScoreList.Insert(newIndex, new SnakeHighScore()
+            {
+                PlayerName = this.textBoxPlayerName.Text,
+                Score = this._currentScore
+            });
+            while (this.HighScoreList.Count > MaxHighscoreListEntryCount)
+            {
+                this.HighScoreList.RemoveAt(MaxHighscoreListEntryCount);
+            }
+            this.SaveHighScoreList();
+            this.borderNewHighscore.Visibility = Visibility.Collapsed;
+            this.borderHighscoreList.Visibility = Visibility.Visible;
         }
         public ObservableCollection<SnakeHighScore> HighScoreList
         {
